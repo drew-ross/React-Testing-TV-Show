@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { showMockData } from './utils/showMockData';
@@ -10,15 +10,17 @@ import App from './App';
 jest.mock('./api/fetchShow');
 
 test('Data is fetched and rendered', async () => {
-  let selector = null;
   fetchShow.mockResolvedValueOnce(showMockData);
   render(<App />);
+  let selector = null;
 
   await waitFor(async () => {
-    screen.debug();
-    screen.findByText(/select a season/i)
-    .then(res => selector = res);
+    screen.findByText(/select a season/i).then(res => (selector = res));
   });
 
-  console.log(selector);
+  userEvent.click(selector);
+  userEvent.click(screen.getByText(/Season 1/i));
+
+  expect(screen.getByText(/Chapter One/i)).toBeInTheDocument();
+
 });
